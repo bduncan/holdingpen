@@ -116,32 +116,28 @@ resource = File
             log.debug("open_sockets: %r", open_sockets)
             r, w, x = select.select([listen_sock] + open_sockets, [], [])
             log.debug("select returned %r" % (r))
-            if listen_sock in r:
-                # Add the socket object to the list of open sockets.
-                open_sockets.append(listen_sock.accept()[0])
-                if len(res):
-                    res.free()
-                    log.info("Allocated a block to client on %r",
-                        open_sockets[-1])
-                else:
-                    log.warn("Ran out of blocks to allocate to client on %r",
-                        open_sockets[-1])
-            while r:
-                if r[0] is listen_sock:
-                    del r[0]
+            for sock in r:
+                if sock is listen_sock:
+                    # Add the socket object to the list of open sockets.
+                    open_sockets.append(listen_sock.accept()[0])
+                    if len(res):
+                        res.free()
+                        log.info("Allocated a block to client on %r",
+                            open_sockets[-1])
+                    else:
+                        log.warn("Ran out of blocks to allocate to client on %r",
+                            open_sockets[-1])
                     continue
                 data = r[0].recv(1024)
                 if data:
                     log.warn("%r sent some data! Really just expected the"
                           + " socket to close... recv returned '%s'",
                           r[0], data)
-                    del r[0]
                     continue
                 log.info("Client closed the socket. Allocating its block...")
-                open_sockets.remove(r[0])
+                open_sockets.remove(sock)
                 if len(open_sockets) < config.getint("main", "blocks"):
                     res.alloc()
-                del r[0]
 
 
 if __name__ == '__main__':
