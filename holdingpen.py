@@ -66,29 +66,33 @@ def main():
     config = ConfigParser.SafeConfigParser(defaults)
     config.read('/etc/holdingpen.conf')
     listen_sock = socket.socket(socket.AF_UNIX)
-    listen_sock.bind(config.get("main", "socket"))
-    listen_sock.listen(5)
-    res = FileStack(config.getint("main", "blocks"),
-                    config.getint("main", "blocksize"))
-    while True:
-        # select without timeout
-        r, w, x = select.select([listen_sock] + open_sockets, [], [])
-        if listen_sock in r:
-            open_sockets.append(listen_sock.accept())
-            if len(res):
-                res.free()
-                log.info("Allocated a block to client on %r", open_sockets[-1])
+    try:
+        listen_sock.bind(config.get("main", "socket"))
+        listen_sock.listen(5)
+        res = FileStack(config.getint("main", "blocks"),
+                        config.getint("main", "blocksize"))
+        while True:
+            # select without timeout
+            r, w, x = select.select([listen_sock] + open_sockets, [], [])
+            if listen_sock in r:
+                open_sockets.append(listen_sock.accept())
+                if len(res):
+                    res.free()
+                    log.info("Allocated a block to client on %r",
+                        open_sockets[-1])
+                else:
+                    log.warn("Ran out of blocks to allocate to client on %r",
+                        open_sockets[-1])
             else:
-                log.warn("Ran out of blocks to allocate to client on %r",
-                    open_sockets[-1])
-        else:
-            err = r[0].recv(1)
-            if err != -1:
-                log.warn("Client sent some data! Really just expected the" +
-                        " socket to close...")
-                log.warn(str(err))
-                continue
-            res.alloc()
+                err = r[0].recv(1)
+                if err != -1:
+                    log.warn("Client sent some data! Really just expected the"
+                          + " socket to close...")
+                    log.warn(str(err))
+                    continue
+                res.alloc()
+    finally:
+        listen_sock.close()
 
 
 if __name__ == '__main__':
