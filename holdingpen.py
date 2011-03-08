@@ -7,20 +7,20 @@ import ConfigParser
 
 class ResourceStack(object):
     def __init__(self, nblocks, blocksize):
-        self.blocks = []
-        self.nblocks = nblocks
-        self.blocksize = blocksize
-        for i in range(self.nblocks):
+        self._blocks = []
+        self._nblocks = nblocks
+        self._blocksize = blocksize
+        for i in range(self._nblocks):
             self.alloc()
 
 class MmapStack(ResourceStack):
     def alloc():
-        self.blocks.append(mmap.mmap(-1, self.blocksize, 0x2000)) # MAP_LOCKED
-        self.blocks[-1].write(''.join([random.randint(0, 256) for x in range(self.blocksize)]))
+        self._blocks.append(mmap.mmap(-1, self._blocksize, 0x2000)) # MAP_LOCKED
+        self._blocks[-1].write(''.join([random.randint(0, 256) for x in range(self._blocksize)]))
 
     def free():
-        mmap.munmap(self.blocks[-1])
-        del self.blocks[-1]
+        mmap.munmap(self._blocks[-1])
+        del self._blocks[-1]
 
 
 def main():
