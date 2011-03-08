@@ -104,14 +104,15 @@ def main():
                 if r[0] is listen_sock:
                     del r[0]
                     continue
-                err = r[0].recv(1024)
-                if err != -1:
+                data = r[0].recv(1024)
+                if data:
                     log.warn("%r sent some data! Really just expected the"
-                          + " socket to close... recv returned '%s'", r[0], err)
-                    log.warn(str(err))
+                          + " socket to close... recv returned '%s'",
+                          r[0], data)
                     del r[0]
                     continue
                 log.info("Client closed the socket. Allocating its block...")
+                open_sockets.remove(r[0])
                 res.alloc()
                 del r[0]
 
