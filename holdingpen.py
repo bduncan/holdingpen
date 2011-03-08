@@ -53,7 +53,7 @@ class FileStack(ResourceStack):
 
     def alloc(self):
         if self._i < self._nblocks:
-            open("tmp/%d" % (self._i)).close()
+            open("tmp/%d" % (self._i), "w").close()
             self._i += 1
 
     def free(self):
