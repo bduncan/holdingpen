@@ -23,7 +23,7 @@ class ResourceStack(object):
 class MmapStack(ResourceStack):
     def __init__(self, *args, **kwargs):
         self._blocks = []
-        super(MmapStack, self).__init__(self, *args, **kwargs)
+        super(MmapStack, self).__init__(*args, **kwargs)
 
     def alloc(self):
         if len(self._blocks) < self._nblocks:
@@ -49,7 +49,7 @@ class FileStack(ResourceStack):
             if e.errno != errno.EEXIST:
                 raise
         self._i = 0
-        super(FileStack, self).__init__(self, *args, **kwargs)
+        super(FileStack, self).__init__(*args, **kwargs)
 
     def alloc(self):
         if self._i < self._nblocks:
