@@ -17,11 +17,11 @@ class ResourceStack(object):
             self.free()
 
 class MmapStack(ResourceStack):
-    def alloc():
+    def alloc(self):
         self._blocks.append(mmap.mmap(-1, self._blocksize, 0x2000)) # MAP_LOCKED
         self._blocks[-1].write(''.join([random.randint(0, 256) for x in range(self._blocksize)]))
 
-    def free():
+    def free(self):
         mmap.munmap(self._blocks[-1])
         del self._blocks[-1]
 
