@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim: fileencoding=utf-8:
 
+import atexit
 import os
 import socket
 import ConfigParser
@@ -66,6 +67,10 @@ class FileStack(ResourceStack):
             self._i -= 1
             os.unlink("tmp/%d" % (self._i))
 
+    def finalise(self):
+        super(FileStack, self).finalise()
+        os.rmdir("tmp")
+
     def __len__(self):
         return len(os.listdir("tmp"))
 
@@ -94,6 +99,7 @@ def main():
         log.debug("socket bound: %r", listen_sock)
         res = FileStack(config.getint("main", "blocks"),
                         config.getint("main", "blocksize"))
+        atexit.register(res.finalise)
         while True:
             # select without timeout
             log.debug("open_sockets: %r", open_sockets)
@@ -122,7 +128,8 @@ def main():
                     continue
                 log.info("Client closed the socket. Allocating its block...")
                 open_sockets.remove(r[0])
-                res.alloc()
+                if len(open_sockets) < config.getint("main", "blocks"):
+                    res.alloc()
                 del r[0]
 
 
