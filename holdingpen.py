@@ -7,11 +7,14 @@ import ConfigParser
 
 class ResourceStack(object):
     def __init__(self, nblocks, blocksize):
-        self._blocks = []
         self._nblocks = nblocks
         self._blocksize = blocksize
         for i in range(self._nblocks):
             self.alloc()
+
+    def finalise(self):
+        for i in range(len(self)):
+            self.free()
 
 class MmapStack(ResourceStack):
     def alloc():
@@ -21,6 +24,9 @@ class MmapStack(ResourceStack):
     def free():
         mmap.munmap(self._blocks[-1])
         del self._blocks[-1]
+
+    def __len__(self):
+        return len(self._blocks)
 
 
 def main():
