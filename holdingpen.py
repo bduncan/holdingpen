@@ -5,6 +5,7 @@ import os
 import socket
 import ConfigParser
 
+
 class ResourceStack(object):
     def __init__(self, nblocks, blocksize):
         self._nblocks = nblocks
@@ -16,18 +17,23 @@ class ResourceStack(object):
         for i in range(len(self)):
             self.free()
 
+
 class MmapStack(ResourceStack):
     def __init__(self):
         self._blocks = []
         super(MmapStack, self).__init__(self)
 
     def alloc(self):
-        self._blocks.append(mmap.mmap(-1, self._blocksize, 0x2000)) # MAP_LOCKED
-        self._blocks[-1].write(''.join([random.randint(0, 256) for x in range(self._blocksize)]))
+        if len(self._blocks) < self._nblocks:
+            # 0x2000 is MAP_LOCKED
+            self._blocks.append(mmap.mmap(-1, self._blocksize, 0x2000))
+            self._blocks[-1].write(''.join([random.randint(0, 256)
+                                            for x in range(self._blocksize)]))
 
     def free(self):
-        mmap.munmap(self._blocks[-1])
-        del self._blocks[-1]
+        if len(self._blocks) > 0:
+            mmap.munmap(self._blocks[-1])
+            del self._blocks[-1]
 
     def __len__(self):
         return len(self._blocks)
@@ -40,43 +46,48 @@ class FileStack(ResourceStack):
         super(MmapStack, self).__init__(self)
 
     def alloc(self):
-        open("tmp/%d" % (self._i)).close()
-        self._i += 1
+        if self._i < self._nblocks:
+            open("tmp/%d" % (self._i)).close()
+            self._i += 1
 
     def free(self):
-        os.unlink("tmp/%d" % (self._i))
-        self._i -= 1
+        if self._i > 0:
+            os.unlink("tmp/%d" % (self._i))
+            self._i -= 1
 
     def __len__(self):
         return len(os.listdir("tmp"))
 
+
 def main():
     defaults = {"socket": "/var/run/holdingpen.socket",
-                "blocksize": 1024*1024,
+                "blocksize": 1024 * 1024,
                 "blocks": 2}
     config = ConfigParser.SafeConfigParser(defaults)
     config.read('/etc/holdingpen.conf')
     listen_sock = socket.socket(socket.AF_UNIX, config.get("main", "socket"))
-    blocks = []
-    for i in range(config.getint("main", "blocks")):
-        alloc(blocks, config.getint("main", "blocksize"))
-    open_sockets = []
+    res = FileStack(config.getint("main", "blocks"),
+                    config.getint("main", "blocksize"))
     while True:
-        r,w,x = select.select([listen_sock] + open_sockets, [], []) # no timeout
+        # select without timeout
+        r, w, x = select.select([listen_sock] + open_sockets, [], [])
         if listen_sock in r:
             open_sockets.append(listen_sock.accept())
-            if blocks:
+            if len(res):
+                res.free()
                 log.info("Allocated a block to client on %r", open_sockets[-1])
             else:
-                log.warn("Ran out of blocks to allocate to client on %r", open_sockets[-1])
+                log.warn("Ran out of blocks to allocate to client on %r",
+                    open_sockets[-1])
         else:
             err = r[0].recv(1)
             if err != -1:
-                log.warn("Client sent some data! Really just expected the socket to close...")
+                log.warn("Client sent some data! Really just expected the" +
+                        " socket to close...")
                 log.warn(str(err))
                 continue
-            if len(blocks) < config.getint("main", "blocks"):
-                alloc(blocks, config.getint("main", "blocksize"))
+            res.alloc()
+
 
 if __name__ == '__main__':
     main()
