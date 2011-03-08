@@ -20,9 +20,9 @@ class ResourceStack(object):
 
 
 class MmapStack(ResourceStack):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self._blocks = []
-        super(MmapStack, self).__init__(self)
+        super(MmapStack, self).__init__(self, *args, **kwargs)
 
     def alloc(self):
         if len(self._blocks) < self._nblocks:
@@ -41,10 +41,10 @@ class MmapStack(ResourceStack):
 
 
 class FileStack(ResourceStack):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         os.mkdir("tmp")
         self._i = 0
-        super(MmapStack, self).__init__(self)
+        super(MmapStack, self).__init__(self, *args, **kwargs)
 
     def alloc(self):
         if self._i < self._nblocks:
