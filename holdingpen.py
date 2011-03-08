@@ -87,14 +87,17 @@ def main():
         # Unix sockets can't be reused. This seems to be how people handle it.
         os.unlink(config.get("main", "socket"))
         listen_sock.bind(config.get("main", "socket"))
+        # Set permissions, if appropriate
+        # fchmod and fchown don't work on sockets :(
         if config.has_option("main", "mode"):
-            os.fchmod(listen_sock.fileno(), config.getint("main", "mode"))
+            os.chmod(config.get("main", "socket"),
+                     config.getint("main", "mode"))
         uid = config.has_option("main", "owner") and \
             config.getint("main", "owner") or -1
         gid = config.has_option("main", "group") and \
             config.getint("main", "group") or -1
         if uid >= 0 or gid >= 0:
-            os.fchown(listen_sock.fileno(), uid, gid)
+            os.chown(config.get("main", "socket"), uid, gid)
         listen_sock.listen(5)
         log.debug("socket bound: %r", listen_sock)
         res = FileStack(config.getint("main", "blocks"),
