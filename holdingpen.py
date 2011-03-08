@@ -11,7 +11,6 @@ import select
 import logging
 import StringIO
 import mmap
-import random
 from contextlib import closing
 
 
@@ -39,9 +38,8 @@ class MmapStack(ResourceStack):
         if len(self._blocks) < self._nblocks:
             # 0x2000 is MAP_LOCKED
             self._blocks.append(mmap.mmap(-1, self._blocksize,
-                mmap.MAP_PRIVATE|0x2000))
-            self._blocks[-1].write(''.join([chr(random.randrange(256))
-                                            for x in range(self._blocksize)]))
+                mmap.MAP_PRIVATE | 0x2000))
+            self._blocks[-1].write('\0' * self._blocksize)
 
     def free(self):
         if len(self._blocks) > 0:
