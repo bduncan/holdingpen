@@ -67,6 +67,8 @@ def main():
     config.read('/etc/holdingpen.conf')
     listen_sock = socket.socket(socket.AF_UNIX)
     try:
+        # Unix sockets can't be reused. This seems to be how people handle it.
+        os.unlink(config.get("main", "socket"))
         listen_sock.bind(config.get("main", "socket"))
         listen_sock.listen(5)
         res = FileStack(config.getint("main", "blocks"),
