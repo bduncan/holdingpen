@@ -6,7 +6,11 @@ import socket
 import ConfigParser
 import errno
 import select
+import logging
 from contextlib import closing
+
+
+log = logging.getLogger("holdingpen")
 
 
 class ResourceStack(object):
@@ -78,11 +82,13 @@ def main():
         os.unlink(config.get("main", "socket"))
         listen_sock.bind(config.get("main", "socket"))
         listen_sock.listen(5)
+        log.debug("socket bound: %r", listen_sock)
         res = FileStack(config.getint("main", "blocks"),
                         config.getint("main", "blocksize"))
         while True:
             # select without timeout
             r, w, x = select.select([listen_sock] + open_sockets, [], [])
+            log.debug("select returned %r" % (r))
             if listen_sock in r:
                 open_sockets.append(listen_sock.accept())
                 if len(res):
@@ -99,8 +105,10 @@ def main():
                           + " socket to close...")
                     log.warn(str(err))
                     continue
+                log.info("Client closed the socket. Allocating its block...")
                 res.alloc()
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
     main()
