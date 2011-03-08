@@ -67,7 +67,7 @@ def main():
     config.read('/etc/holdingpen.conf')
     listen_sock = socket.socket(socket.AF_UNIX)
     listen_sock.bind(config.get("main", "socket"))
-    listen_socket.listen(5)
+    listen_sock.listen(5)
     res = FileStack(config.getint("main", "blocks"),
                     config.getint("main", "blocksize"))
     while True:
