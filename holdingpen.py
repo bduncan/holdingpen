@@ -5,9 +5,23 @@ import os
 import socket
 import ConfigParser
 
-def alloc(blocks, blocksize):
-    blocks.append(mmap.mmap(-1, blocksize, 0x2000)) # MAP_LOCKED
-    blocks[-1].write(''.join([random.randint(0, 256) for x in range(blocksize)]))
+class ResourceStack(object):
+    def __init__(self, nblocks, blocksize):
+        self.blocks = []
+        self.nblocks = nblocks
+        self.blocksize = blocksize
+        for i in range(self.nblocks):
+            self.alloc()
+
+class MmapStack(ResourceStack):
+    def alloc():
+        self.blocks.append(mmap.mmap(-1, self.blocksize, 0x2000)) # MAP_LOCKED
+        self.blocks[-1].write(''.join([random.randint(0, 256) for x in range(self.blocksize)]))
+
+    def free():
+        mmap.munmap(self.blocks[-1])
+        del self.blocks[-1]
+
 
 def main():
     defaults = {"socket": "/var/run/holdingpen.socket",
@@ -25,8 +39,6 @@ def main():
         if listen_sock in r:
             open_sockets.append(listen_sock.accept())
             if blocks:
-                mmap.munmap(blocks[-1])
-                del blocks[-1]
                 log.info("Allocated a block to client on %r", open_sockets[-1])
             else:
                 log.warn("Ran out of blocks to allocate to client on %r", open_sockets[-1])
