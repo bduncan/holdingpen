@@ -5,13 +5,17 @@ import os
 import sys
 import socket
 import ConfigParser
+import StringIO
 
 
 def main():
     # Try to open the socket, but if not, we must still run the program.
     try:
-        defaults = {"socket": "/var/run/holdingpen.socket"}
-        config = ConfigParser.SafeConfigParser(defaults)
+        default = """[main]
+socket = /var/run/holdingpen.socket
+        """
+        config = ConfigParser.SafeConfigParser()
+        config.readfp(StringIO.StringIO(default))
         config.read('/etc/holdingpen.conf')
         sock = socket.socket(socket.AF_UNIX)
         sock.connect(config.get("main", "socket"))

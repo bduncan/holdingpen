@@ -9,6 +9,7 @@ import ConfigParser
 import errno
 import select
 import logging
+import StringIO
 from contextlib import closing
 
 
@@ -77,11 +78,15 @@ class FileStack(ResourceStack):
 
 
 def main():
-    defaults = {"socket": "/var/run/holdingpen.socket",
-                "mode": str(0700),
-                "blocksize": str(1024 * 1024),
-                "blocks": "2"}
-    config = ConfigParser.SafeConfigParser(defaults)
+    default = """[main]
+socket = /var/run/holdingpen.socket
+mode = 448 ; 0700 in decimal
+blocksize = 1048576 ; 1024 * 1024 = 1 MiB
+blocks = 2
+resource = File
+    """
+    config = ConfigParser.SafeConfigParser()
+    config.readfp(StringIO.StringIO(default))
     config.read('/etc/holdingpen.conf')
     open_sockets = []
     with closing(socket.socket(socket.AF_UNIX)) as listen_sock:
