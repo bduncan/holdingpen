@@ -4,6 +4,7 @@
 import os
 import socket
 import ConfigParser
+from contextlib import closing
 
 
 class ResourceStack(object):
@@ -65,8 +66,7 @@ def main():
                 "blocks": 2}
     config = ConfigParser.SafeConfigParser(defaults)
     config.read('/etc/holdingpen.conf')
-    listen_sock = socket.socket(socket.AF_UNIX)
-    try:
+    with closing(socket.socket(socket.AF_UNIX)) as listen_sock:
         # Unix sockets can't be reused. This seems to be how people handle it.
         os.unlink(config.get("main", "socket"))
         listen_sock.bind(config.get("main", "socket"))
@@ -93,8 +93,6 @@ def main():
                     log.warn(str(err))
                     continue
                 res.alloc()
-    finally:
-        listen_sock.close()
 
 
 if __name__ == '__main__':
