@@ -4,6 +4,7 @@
 import os
 import socket
 import ConfigParser
+import errno
 from contextlib import closing
 
 
@@ -42,7 +43,11 @@ class MmapStack(ResourceStack):
 
 class FileStack(ResourceStack):
     def __init__(self, *args, **kwargs):
-        os.mkdir("tmp")
+        try:
+            os.mkdir("tmp")
+        except OSError, e:
+            if e.errno != errno.EEXIST:
+                raise
         self._i = 0
         super(FileStack, self).__init__(self, *args, **kwargs)
 
