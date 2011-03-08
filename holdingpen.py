@@ -72,6 +72,7 @@ def main():
                 "blocks": "2"}
     config = ConfigParser.SafeConfigParser(defaults)
     config.read('/etc/holdingpen.conf')
+    open_sockets = []
     with closing(socket.socket(socket.AF_UNIX)) as listen_sock:
         # Unix sockets can't be reused. This seems to be how people handle it.
         os.unlink(config.get("main", "socket"))
