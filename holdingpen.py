@@ -63,8 +63,8 @@ class FileStack(ResourceStack):
 
     def free(self):
         if self._i > 0:
-            os.unlink("tmp/%d" % (self._i))
             self._i -= 1
+            os.unlink("tmp/%d" % (self._i))
 
     def __len__(self):
         return len(os.listdir("tmp"))
