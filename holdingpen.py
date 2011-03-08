@@ -3,6 +3,7 @@
 
 import atexit
 import os
+import sys
 import socket
 import ConfigParser
 import errno
@@ -100,8 +101,10 @@ def main():
             os.chown(config.get("main", "socket"), uid, gid)
         listen_sock.listen(5)
         log.debug("socket bound: %r", listen_sock)
-        res = FileStack(config.getint("main", "blocks"),
-                        config.getint("main", "blocksize"))
+        resclass = getattr(sys.modules['__main__'],
+                           config.get("main", "resource") + "Stack")
+        res = resclass(config.getint("main", "blocks"),
+                       config.getint("main", "blocksize"))
         atexit.register(res.finalise)
         while True:
             # select without timeout
