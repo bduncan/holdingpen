@@ -5,16 +5,18 @@ import os
 import sys
 import socket
 import ConfigParser
-import subprocess
-import atexit
 
 
 def main():
-    defaults = {"socket": "/var/run/holdingpen.socket"}
-    config = ConfigParser.SafeConfigParser(defaults)
-    config.read('/etc/holdingpen.conf')
-    sock = socket.socket(socket.AF_UNIX)
-    sock.connect(config.get("main", "socket"))
+    # Try to open the socket, but if not, we must still run the program.
+    try:
+        defaults = {"socket": "/var/run/holdingpen.socket"}
+        config = ConfigParser.SafeConfigParser(defaults)
+        config.read('/etc/holdingpen.conf')
+        sock = socket.socket(socket.AF_UNIX)
+        sock.connect(config.get("main", "socket"))
+    except Exception:
+        pass
     # Pass the opened socket to the program. If the program decides to close
     # all descriptors, this will not work. An alternative will be fork and
     # pause for SIGCHLD before exiting.
