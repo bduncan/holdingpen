@@ -19,7 +19,7 @@ def main():
     config.read('/etc/holdingpen.conf')
     sock = socket.socket(socket.AF_UNIX)
     sock.connect(config.get("main", "socket"))
-    os.execvp(sys.argv[0], sys.argv[1:] or [''])
+    os.execvp(sys.argv[0], sys.argv)
     #atexit.register(cleanup, sock)
     # close_fds is the default, but since we rely on it strongly, make it
     # explicit.
