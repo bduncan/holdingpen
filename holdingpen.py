@@ -10,6 +10,8 @@ import errno
 import select
 import logging
 import StringIO
+import mmap
+import random
 from contextlib import closing
 
 
@@ -36,13 +38,14 @@ class MmapStack(ResourceStack):
     def alloc(self):
         if len(self._blocks) < self._nblocks:
             # 0x2000 is MAP_LOCKED
-            self._blocks.append(mmap.mmap(-1, self._blocksize, 0x2000))
-            self._blocks[-1].write(''.join([random.randint(0, 256)
+            self._blocks.append(mmap.mmap(-1, self._blocksize,
+                mmap.MAP_PRIVATE|0x2000))
+            self._blocks[-1].write(''.join([chr(random.randrange(256))
                                             for x in range(self._blocksize)]))
 
     def free(self):
         if len(self._blocks) > 0:
-            mmap.munmap(self._blocks[-1])
+            self._blocks[-1].close()
             del self._blocks[-1]
 
     def __len__(self):
@@ -83,7 +86,7 @@ socket = /var/run/holdingpen.socket
 mode = 448 ; 0700 in decimal
 blocksize = 1048576 ; 1024 * 1024 = 1 MiB
 blocks = 2
-resource = File
+resource = Mmap
     """
     config = ConfigParser.SafeConfigParser()
     config.readfp(StringIO.StringIO(default))
