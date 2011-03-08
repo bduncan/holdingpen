@@ -5,6 +5,7 @@ import os
 import socket
 import ConfigParser
 import errno
+import select
 from contextlib import closing
 
 
