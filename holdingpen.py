@@ -87,10 +87,12 @@ def main():
                         config.getint("main", "blocksize"))
         while True:
             # select without timeout
+            log.debug("open_sockets: %r", open_sockets)
             r, w, x = select.select([listen_sock] + open_sockets, [], [])
             log.debug("select returned %r" % (r))
             if listen_sock in r:
-                open_sockets.append(listen_sock.accept())
+                # Add the socket object to the list of open sockets.
+                open_sockets.append(listen_sock.accept()[0])
                 if len(res):
                     res.free()
                     log.info("Allocated a block to client on %r",
@@ -98,15 +100,20 @@ def main():
                 else:
                     log.warn("Ran out of blocks to allocate to client on %r",
                         open_sockets[-1])
-            else:
-                err = r[0].recv(1)
+            while r:
+                if r[0] is listen_sock:
+                    del r[0]
+                    continue
+                err = r[0].recv(1024)
                 if err != -1:
-                    log.warn("Client sent some data! Really just expected the"
-                          + " socket to close...")
+                    log.warn("%r sent some data! Really just expected the"
+                          + " socket to close... recv returned '%s'", r[0], err)
                     log.warn(str(err))
+                    del r[0]
                     continue
                 log.info("Client closed the socket. Allocating its block...")
                 res.alloc()
+                del r[0]
 
 
 if __name__ == '__main__':
