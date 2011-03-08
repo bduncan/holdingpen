@@ -17,6 +17,10 @@ class ResourceStack(object):
             self.free()
 
 class MmapStack(ResourceStack):
+    def __init__(self):
+        self._blocks = []
+        super(MmapStack, self).__init__(self)
+
     def alloc(self):
         self._blocks.append(mmap.mmap(-1, self._blocksize, 0x2000)) # MAP_LOCKED
         self._blocks[-1].write(''.join([random.randint(0, 256) for x in range(self._blocksize)]))
@@ -28,6 +32,23 @@ class MmapStack(ResourceStack):
     def __len__(self):
         return len(self._blocks)
 
+
+class FileStack(ResourceStack):
+    def __init__(self):
+        os.mkdir("tmp")
+        self._i = 0
+        super(MmapStack, self).__init__(self)
+
+    def alloc(self):
+        open("tmp/%d" % (self._i)).close()
+        self._i += 1
+
+    def free(self):
+        os.unlink("tmp/%d" % (self._i))
+        self._i -= 1
+
+    def __len__(self):
+        return len(os.listdir("tmp"))
 
 def main():
     defaults = {"socket": "/var/run/holdingpen.socket",
