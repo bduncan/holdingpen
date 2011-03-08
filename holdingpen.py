@@ -62,8 +62,8 @@ class FileStack(ResourceStack):
 
 def main():
     defaults = {"socket": "/var/run/holdingpen.socket",
-                "blocksize": 1024 * 1024,
-                "blocks": 2}
+                "blocksize": str(1024 * 1024),
+                "blocks": "2"}
     config = ConfigParser.SafeConfigParser(defaults)
     config.read('/etc/holdingpen.conf')
     with closing(socket.socket(socket.AF_UNIX)) as listen_sock:

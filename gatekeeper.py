@@ -13,9 +13,7 @@ def cleanup(sock):
 
 
 def main():
-    defaults = {"socket": "/var/run/holdingpen.socket",
-                "blocksize": 1024 * 1024,
-                "blocks": 2}
+    defaults = {"socket": "/var/run/holdingpen.socket"}
     config = ConfigParser.SafeConfigParser(defaults)
     config.read('/etc/holdingpen.conf')
     sock = socket.socket(socket.AF_UNIX)
