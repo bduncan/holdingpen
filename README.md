@@ -35,13 +35,13 @@ Installation
 Holding Pen is capable of being built as distribution binary packages. The
 easiest way to install it is probably to do something like this:
 
-python setup.py bdist_rpm
-sudo rpm -i holdingpen_0.1.rpm  # or whatever the filename which is created
+    python setup.py bdist_rpm
+    sudo rpm -i holdingpen_0.1.rpm  # or whatever the filename which is created
 
 or
 
-debuild -us -uc  # These options avoid signing the generated package
-sudo dpkg -i ../holdingpen_0.1_all.deb
+    debuild -us -uc  # These options avoid signing the generated package
+    sudo dpkg -i ../holdingpen_0.1_all.deb
 
 Usage
 -----
