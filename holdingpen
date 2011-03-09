@@ -29,6 +29,7 @@ import ConfigParser
 import errno
 import select
 import logging
+import logging.handlers
 import StringIO
 import mmap
 from contextlib import closing, contextmanager
@@ -179,16 +180,24 @@ def pidfile(path):
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument("-v", "--verbose", action="store_true")
-    parser.add_argument("-d", "--daemon",action="store_true")
+    parser.add_argument("-d", "--daemon", action="store_true")
     parser.add_argument("-c", "--conf", default=CONFIG_FILE)
     parser.add_argument("-p", "--pidfile", default=PID_FILE)
+    parser.add_argument("-l", "--logfile")
     args = parser.parse_args()
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.WARN)
+    if args.logfile:
+        log.addHandler(logging.FileHandler(args.logfile))
     if args.daemon:
+        # Try to log somewhere if we're about to close stderr.
+        log.addHandler(logging.handlers.SysLogHandler(address='/dev/log'))
         import daemon
         daemon.create_daemon()
+    formatter = logging.Formatter("%(name)s: %(levelname)s %(message)s")
+    for handler in log.handlers:
+        handler.setFormatter(formatter)
     with pidfile(args.pidfile):
         main(args.conf)
