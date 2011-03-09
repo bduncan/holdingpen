@@ -48,7 +48,13 @@ Usage
 
 Holding Pen is designed to run at boot. The packages will put the necessary
 startup files in the right place, just use whatever distribution method you
-desire to start it at the right time.
+desire to start it at the right time. The debian package will start the daemon
+in most cases. I haven't tested the rpm.
+
+The daemon reads the configuration file /etc/holdingpen.conf, or whatever you
+specify with the -c (--conf) option. Look at the file to see the defaults.
+Remember that the mode has to be specified in decimal. Sorry about that. For
+reference, 0700 = 448.
 
 Once the daemon is running, simply prepend "gatekeeper" to the command you wish
 to have access to reserved resource.

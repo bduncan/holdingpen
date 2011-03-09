@@ -40,7 +40,6 @@ CONFIG_FILE = "/etc/holdingpen.conf"
 PID_FILE = "/var/run/holdingpen.pid"
 default_config = """[main]
 socket = /var/run/holdingpen.socket
-mode = 448 ; 0700 in decimal
 blocksize = 1048576 ; 1024 * 1024 = 1 MiB
 blocks = 2
 resource = Mmap
