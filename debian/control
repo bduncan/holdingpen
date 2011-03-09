@@ -1,0 +1,17 @@
+Source: holdingpen
+Section: admin
+Priority: optional
+Maintainer: Bruce Duncan <Bruce.Duncan@ed.ac.uk>
+Build-Depends: debhelper (>= 8),
+               python-support,
+               python (>= 2.6)
+Standards-Version: 3.9.1
+Homepage: https://github.com/bduncan/holdingpen
+
+Package: holdingpen
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}
+Description: A resource hog.
+ Holding Pen reserves resources which may be released when a socket is opened.
+ The resource is re-acquired when the socket is closed. Contains a wrapper
+ script for programs to easily request resource from the daemon.
