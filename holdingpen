@@ -31,8 +31,19 @@ import select
 import logging
 import StringIO
 import mmap
-from contextlib import closing
+from contextlib import closing, contextmanager
+from argparse import ArgumentParser
 
+
+CONFIG_FILE = "/etc/holdingpen.conf"
+PID_FILE = "/var/run/holdingpen.pid"
+default_config = """[main]
+socket = /var/run/holdingpen.socket
+mode = 448 ; 0700 in decimal
+blocksize = 1048576 ; 1024 * 1024 = 1 MiB
+blocks = 2
+resource = Mmap
+"""
 
 log = logging.getLogger("holdingpen")
 
@@ -99,17 +110,10 @@ class FileStack(ResourceStack):
         return len(os.listdir("tmp"))
 
 
-def main():
-    default = """[main]
-socket = /var/run/holdingpen.socket
-mode = 448 ; 0700 in decimal
-blocksize = 1048576 ; 1024 * 1024 = 1 MiB
-blocks = 2
-resource = Mmap
-    """
+def main(config_file):
     config = ConfigParser.SafeConfigParser()
-    config.readfp(StringIO.StringIO(default))
-    config.read('/etc/holdingpen.conf')
+    config.readfp(StringIO.StringIO(default_config))
+    config.read(config_file)
     open_sockets = []
     with closing(socket.socket(socket.AF_UNIX)) as listen_sock:
         # Unix sockets can't be reused. This seems to be how people handle it.
@@ -162,6 +166,29 @@ resource = Mmap
                     res.alloc()
 
 
+@contextmanager
+def pidfile(path):
+    with open(path, 'w') as f:
+        f.write(str(os.getpid()) + '\n')
+    try:
+        yield
+    finally:
+        os.unlink(path)
+
+
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.WARN)
-    main()
+    parser = ArgumentParser()
+    parser.add_argument("-v", "--verbose", action="store_true")
+    parser.add_argument("-d", "--daemon",action="store_true")
+    parser.add_argument("-c", "--conf", default=CONFIG_FILE)
+    parser.add_argument("-p", "--pidfile", default=PID_FILE)
+    args = parser.parse_args()
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.WARN)
+    if args.daemon:
+        import daemon
+        daemon.create_daemon()
+    with pidfile(args.pidfile):
+        main(args.conf)

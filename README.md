@@ -29,15 +29,36 @@ console users to always have memory available to run MATLAB, regardless of what
 else the machine is doing. We plan to give ownership of the socket to the
 console user through gdm.
 
+Installation
+------------
+
+Holding Pen is capable of being built as distribution binary packages. The
+easiest way to install it is probably to do something like this:
+
+python setup.py bdist_rpm
+sudo rpm -i holdingpen_0.1.rpm  # or whatever the filename which is created
+
+or
+
+debuild -us -uc  # These options avoid signing the generated package
+sudo dpkg -i ../holdingpen_0.1_all.deb
+
+Usage
+-----
+
+Holding Pen is designed to run at boot. The packages will put the necessary
+startup files in the right place, just use whatever distribution method you
+desire to start it at the right time.
+
+Once the daemon is running, simply prepend "gatekeeper" to the command you wish
+to have access to reserved resource.
+
 TODO
 ----
 
-- The daemon needs an init script.
-- Some documentation about how to actually use it! Dependent on the previous step.
 - Unix sockets allow file descriptors to be passed between processes. This could
     remove the race condition between the daemon freeing the resource and the
     application requesting it.
-- Packaging as deb (or rpm).
 
 Copyright, Author, License
 --------------------------
