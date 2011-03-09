@@ -1,3 +1,17 @@
+holdingpen (0.2) maverick; urgency=low
+
+  * These programs are scripts, not modules.
+  * Remove .py suffix to simplify packaging.
+  * Add init script.
+  * Use init script. Add a bit of documentation.
+  * Add the init script to the packaging.
+  * Move init script to a place where debian expects it.
+  * Copy the init script to a place suitable for non-Debian.
+  * Add syslog logging if we are daemonised. Add logfile option.
+  * Package the config file. Remove the mode from the defaults.
+
+ -- Bruce Duncan <Bruce.Duncan@ed.ac.uk>  Wed, 09 Mar 2011 18:39:46 +0000
+
 holdingpen (0.1) UNRELEASED; urgency=low
 
   * Initial release.
