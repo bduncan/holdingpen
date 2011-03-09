@@ -32,12 +32,12 @@ console user through gdm.
 TODO
 ----
 
-The daemon needs an init script.
-Some documentation about how to actually use it! Dependent on the previous step.
-Unix sockets allow file descriptors to be passed between processes. This could
+- The daemon needs an init script.
+- Some documentation about how to actually use it! Dependent on the previous step.
+- Unix sockets allow file descriptors to be passed between processes. This could
     remove the race condition between the daemon freeing the resource and the
     application requesting it.
-Packaging as deb (or rpm).
+- Packaging as deb (or rpm).
 
 Copyright, Author, License
 --------------------------
