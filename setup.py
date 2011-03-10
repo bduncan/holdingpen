@@ -6,7 +6,7 @@ import sys
 import shutil
 import errno
 
-if sys.argv[1] == 'install':
+if sys.argv[1] in ('sdist', 'bdist', 'bdist_rpm'):
     try:
         os.mkdir("scripts")
     except OSError, e:
