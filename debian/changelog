@@ -1,3 +1,15 @@
+holdingpen (0.3) maverick; urgency=low
+
+  * Blockquote the installation instructions.
+  * Add the README to the package.
+  * Add a MAINFEST.in file.
+  * Add a comment, tell distutils about the license and avoid an
+    Exception if there are no arguments.
+  * Simplify making a release.
+  * Fix git-buildpackage, making init script a copy
+
+ -- Bruce Duncan <Bruce.Duncan@ed.ac.uk>  Fri, 11 Mar 2011 15:53:48 +0000
+
 holdingpen (0.2) maverick; urgency=low
 
   * These programs are scripts, not modules.
