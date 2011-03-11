@@ -6,14 +6,17 @@ import sys
 import shutil
 import errno
 
-if sys.argv[1] in ('sdist', 'bdist', 'bdist_rpm'):
+# distutils does not allow data_files to be renamed. Debian uses
+# debian/holdingpen.init but RPM wants /etc/init.d/holdingpen, so provide a
+# copy in scripts/
+if len(sys.argv) > 1 and sys.argv[1] in ('sdist', 'bdist', 'bdist_rpm'):
     try:
         os.mkdir("scripts")
     except OSError, e:
         if e.errno != errno.EEXIST:
             raise
     shutil.copyfile("debian/holdingpen.init", "scripts/holdingpen")
-elif sys.argv[1] == 'clean':
+elif len(sys.argv) > 1 and sys.argv[1] == 'clean':
     try:
         os.unlink("scripts/holdingpen")
         os.rmdir("scripts")
@@ -29,5 +32,6 @@ setup(name="holdingpen",
                   ('/usr/share/doc/holdingpen', ['README.md'])],
       author="Bruce Duncan",
       author_email="Bruce.Duncan@ed.ac.uk",
-      url="https://github.com/bduncan/holdingpen"
+      url="https://github.com/bduncan/holdingpen",
+      license="GNU GPLv3",
       )
