@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 
 from distutils.core import setup
+from subprocess import Popen, PIPE
 import os
 import sys
 import shutil
 import errno
+
+def git_describe(abbrev=4):
+    p = Popen(['git', 'describe', '--abbrev=%d' % abbrev], stdout=PIPE)
+    return p.communicate()[0].split('\n')[0].strip()
 
 # distutils does not allow data_files to be renamed. Debian uses
 # debian/holdingpen.init but RPM wants /etc/init.d/holdingpen, so provide a
@@ -24,7 +29,7 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'clean':
         pass
 
 setup(name="holdingpen",
-      version="0.1",
+      version=git_describe(),
       scripts=["holdingpen", "gatekeeper"],
       py_modules=["daemon"],
       data_files=[('/etc', ['holdingpen.conf']),
