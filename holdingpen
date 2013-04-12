@@ -166,6 +166,7 @@ def main(config_file):
                           r[0], data)
                     continue
                 log.info("Client closed the socket. Allocating its block...")
+                sock.close()
                 open_sockets.remove(sock)
                 if len(open_sockets) < config.getint("main", "blocks"):
                     res.alloc()
